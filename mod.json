@@ -1,0 +1,13 @@
+
+{
+  "geode": "5.11.2",
+  "gd": {
+    "android": "2.2081"
+  },
+  "id": "mamadali.hack-ai",
+  "name": "HACK AI",
+  "version": "0.1.0",
+  "developer": "Mamadali",
+  "description": "AI tools and utilities for Geometry Dash.",
+  "dependencies": {}
+}
