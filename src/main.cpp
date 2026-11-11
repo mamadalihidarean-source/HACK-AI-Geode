@@ -1,4 +1,3 @@
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 
@@ -10,10 +9,13 @@ class $modify(HackAIMenu, MenuLayer) {
             return false;
         }
 
+        auto label = CCLabelBMFont::create(
+            "HACK AI",
+            "bigFont.fnt"
+        );
+
         auto button = CCMenuItemSpriteExtra::create(
-            CCSprite::createWithSpriteFrameName(
-                "GJ_likeBtn_001.png"
-            ),
+            label,
             this,
             menu_selector(HackAIMenu::onHackAI)
         );
