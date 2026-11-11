@@ -25,15 +25,3 @@ jobs:
         with:
           name: HACK-AI-Android
           path: ${{ steps.build.outputs.build-output }}
-<<<<<<< HEAD
-
-
-
-
-
-
-
-
-
-=======
->>>>>>> origin/main
