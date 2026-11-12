@@ -13,75 +13,95 @@ protected:
     CCLabelBMFont* m_noclipLabel = nullptr;
 
     bool init() {
-        if (!Popup::init(300.f, 220.f))
+        if (!Popup::init(320.f, 300.f))
             return false;
 
         auto bg = CCLayerColor::create(
-            ccc4(0, 12, 5, 255), 260, 180
+            ccc4(0, 10, 4, 255), 280, 260
         );
         bg->setPosition({20, 20});
-        this->addChild(bg, 0);
+        this->addChild(bg);
 
-        auto topBar = CCLayerColor::create(
-            ccc4(0, 255, 80, 255), 260, 3
+        auto border = CCLayerColor::create(
+            ccc4(0, 255, 80, 255), 280, 3
         );
-        topBar->setPosition({20, 197});
-        this->addChild(topBar, 1);
+        border->setPosition({20, 277});
+        this->addChild(border);
 
-        auto bottomBar = CCLayerColor::create(
-            ccc4(0, 255, 80, 255), 260, 3
+        auto robot = CCLabelBMFont::create(
+            "[ AI ROBOT ]", "bigFont.fnt"
         );
-        bottomBar->setPosition({20, 20});
-        this->addChild(bottomBar, 1);
+        robot->setColor(ccc3(0, 255, 80));
+        robot->setScale(0.75f);
+        robot->setPosition({160, 255});
+        this->addChild(robot);
 
         auto title = CCLabelBMFont::create(
-            "HACK AI", "bigFont.fnt"
+            "HACK AI CONTROL", "bigFont.fnt"
         );
         title->setColor(ccc3(0, 255, 80));
-        title->setScale(0.8f);
-        title->setPosition({150, 180});
-        this->addChild(title, 2);
+        title->setScale(0.55f);
+        title->setPosition({160, 225});
+        this->addChild(title);
+
+        auto menu = CCMenu::create();
+        menu->setPosition({0, 0});
+        this->addChild(menu);
 
         m_noclipLabel = CCLabelBMFont::create(
             g_noclipEnabled ? "NOCLIP: ON" : "NOCLIP: OFF",
             "bigFont.fnt"
         );
         m_noclipLabel->setColor(ccc3(0, 255, 80));
+        m_noclipLabel->setScale(0.55f);
 
-        auto noclipButton = CCMenuItemSpriteExtra::create(
+        auto noclip = CCMenuItemSpriteExtra::create(
             m_noclipLabel,
             this,
             menu_selector(HackAIPopup::onNoclip)
         );
-        noclipButton->setPosition({150, 125});
+        noclip->setPosition({90, 190});
+        menu->addChild(noclip);
 
-        auto menu = CCMenu::create();
-        menu->setPosition({0, 0});
-        menu->addChild(noclipButton);
-        this->addChild(menu, 3);
+        const char* features[] = {
+            "AI SOLVER: SOON",
+            "AUTO CLICK: SOON",
+            "FLY: SOON",
+            "MAP EDITOR: SOON",
+            "MENU CUSTOMIZER: SOON",
+            "ALWAYS DIE: SOON",
+            "HITBOXES: SOON",
+            "INSTANT COMPLETE: SOON"
+        };
 
-        auto comingSoon = CCLabelBMFont::create(
-            "AI SOLVER - SOON", "bigFont.fnt"
-        );
-        comingSoon->setColor(ccc3(0, 180, 65));
-        comingSoon->setScale(0.55f);
-        comingSoon->setPosition({150, 80});
-        this->addChild(comingSoon, 2);
+        float positions[][2] = {
+            {230, 190},
+            {90, 150},
+            {230, 150},
+            {90, 110},
+            {230, 110},
+            {90, 70},
+            {230, 70},
+            {160, 40}
+        };
 
-        auto footer = CCLabelBMFont::create(
-            "HACK AI v0.2", "bigFont.fnt"
-        );
-        footer->setColor(ccc3(0, 255, 80));
-        footer->setScale(0.5f);
-        footer->setPosition({150, 42});
-        this->addChild(footer, 2);
+        for (int i = 0; i < 8; i++) {
+            auto label = CCLabelBMFont::create(
+                features[i], "bigFont.fnt"
+            );
+            label->setColor(ccc3(0, 190, 65));
+            label->setScale(0.38f);
+            label->setPosition({
+                positions[i][0], positions[i][1]
+            });
+            this->addChild(label);
+        }
 
         return true;
     }
 
     void onNoclip(CCObject*) {
         g_noclipEnabled = !g_noclipEnabled;
-
         m_noclipLabel->setString(
             g_noclipEnabled ? "NOCLIP: ON" : "NOCLIP: OFF"
         );
@@ -111,7 +131,7 @@ class $modify(HackAIMenu, MenuLayer) {
             return true;
 
         auto label = CCLabelBMFont::create(
-            "HACK AI", "bigFont.fnt"
+            "[AI] HACK AI", "bigFont.fnt"
         );
         label->setColor(ccc3(0, 255, 80));
 
