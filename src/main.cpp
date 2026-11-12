@@ -6,11 +6,16 @@ using namespace geode::prelude;
 
 namespace {
     bool g_noclipEnabled = false;
+    bool g_waveAssistEnabled = false;
+    bool g_waveButtonHeld = false;
+    bool g_waveTargetValid = false;
+    float g_waveTargetY = 0.f;
 }
 
 class HackAIPopup : public Popup {
 protected:
     CCLabelBMFont* m_noclipLabel = nullptr;
+    CCLabelBMFont* m_waveLabel = nullptr;
 
     bool init() {
         if (!Popup::init(320.f, 300.f))
@@ -53,7 +58,7 @@ protected:
             "bigFont.fnt"
         );
         m_noclipLabel->setColor(ccc3(0, 255, 80));
-        m_noclipLabel->setScale(0.55f);
+        m_noclipLabel->setScale(0.48f);
 
         auto noclip = CCMenuItemSpriteExtra::create(
             m_noclipLabel,
@@ -63,8 +68,22 @@ protected:
         noclip->setPosition({90, 190});
         menu->addChild(noclip);
 
+        m_waveLabel = CCLabelBMFont::create(
+            g_waveAssistEnabled ? "WAVE: ON" : "WAVE: OFF",
+            "bigFont.fnt"
+        );
+        m_waveLabel->setColor(ccc3(0, 255, 80));
+        m_waveLabel->setScale(0.48f);
+
+        auto wave = CCMenuItemSpriteExtra::create(
+            m_waveLabel,
+            this,
+            menu_selector(HackAIPopup::onWave)
+        );
+        wave->setPosition({230, 190});
+        menu->addChild(wave);
+
         const char* features[] = {
-            "AI SOLVER: SOON",
             "AUTO CLICK: SOON",
             "FLY: SOON",
             "MAP EDITOR: SOON",
@@ -75,7 +94,6 @@ protected:
         };
 
         float positions[][2] = {
-            {230, 190},
             {90, 150},
             {230, 150},
             {90, 110},
@@ -85,7 +103,7 @@ protected:
             {160, 40}
         };
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 7; i++) {
             auto label = CCLabelBMFont::create(
                 features[i], "bigFont.fnt"
             );
@@ -107,15 +125,21 @@ protected:
         );
     }
 
+    void onWave(CCObject*) {
+        g_waveAssistEnabled = !g_waveAssistEnabled;
+        g_waveTargetValid = false;
+        m_waveLabel->setString(
+            g_waveAssistEnabled ? "WAVE: ON" : "WAVE: OFF"
+        );
+    }
+
 public:
     static HackAIPopup* create() {
         auto ret = new HackAIPopup();
-
         if (ret && ret->init()) {
             ret->autorelease();
             return ret;
         }
-
         delete ret;
         return nullptr;
     }
@@ -154,6 +178,42 @@ class $modify(HackAIMenu, MenuLayer) {
 };
 
 class $modify(HackAIPlayLayer, PlayLayer) {
+    void postUpdate(float dt) {
+        PlayLayer::postUpdate(dt);
+
+        auto player = m_player1;
+
+        if (!g_waveAssistEnabled ||
+            !player ||
+            player->m_isDead ||
+            !player->m_isDart) {
+
+            if (g_waveButtonHeld && player) {
+                player->releaseButton(PlayerButton::Jump);
+            }
+
+            g_waveButtonHeld = false;
+            g_waveTargetValid = false;
+            return;
+        }
+
+        if (!g_waveTargetValid) {
+            g_waveTargetY = player->getPositionY();
+            g_waveTargetValid = true;
+        }
+
+        float y = player->getPositionY();
+
+        if (y < g_waveTargetY - 8.f && !g_waveButtonHeld) {
+            player->pushButton(PlayerButton::Jump);
+            g_waveButtonHeld = true;
+        }
+        else if (y > g_waveTargetY + 8.f && g_waveButtonHeld) {
+            player->releaseButton(PlayerButton::Jump);
+            g_waveButtonHeld = false;
+        }
+    }
+
     void destroyPlayer(PlayerObject* player, GameObject* object) {
         if (g_noclipEnabled)
             return;
